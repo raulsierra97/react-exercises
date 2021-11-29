@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from "axios"
+import { getAllNumbers } from './services/getAllNumbers'
 
 const Person = ({persona}) => <li>{persona.name} {persona.number}</li>
 
@@ -40,9 +40,8 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then(({data}) => setPersons(data))
+    getAllNumbers()
+      .then((data) => setPersons(data))
 
   }
   ) 
