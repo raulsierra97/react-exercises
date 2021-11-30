@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
+import { deleteNumber } from './services/deleteNumber'
 import { getAllNumbers } from './services/getAllNumbers'
+import { saveNumber } from './services/saveNumber'
 
-const Person = ({persona}) => <li>{persona.name} {persona.number}</li>
+const Person = ({persona}) => <li>{persona.name} {persona.number} 
+<button onClick={deleteNumber(persona.id)}>delete</button></li>
 
 const Persons = ({persons, newFilter}) => {
   return (
     <ul>
-    {persons.map( persona => 
+    {persons.map( (persona,index) => 
       (newFilter === "" || persona.name.toUpperCase().includes(newFilter.toUpperCase()) ? 
-      <Person key={persona.name} persona={persona}/> : "")
+      <Person key={persona.id} persona={persona}/> : "")
       ) } 
     </ul>
   )
@@ -49,19 +52,27 @@ const App = () => {
 
   function handleSubmit(event) {
       event.preventDefault()
-      if (persons.find(person => person.name === newName) !== undefined) {
-        window.alert(`${newName} is already added to phonebook`)
-      }
       if (persons.find(person => person.number === newNumber) !== undefined) {
         window.alert(`${newNumber} is already added to phonebook`)
       }
       else {
+        const id=Math.max(persons.map(person => person.id))
         const personaObj = {
           name: newName,
-          number: newNumber
+          number: newNumber,
+          id: id+1
         }
         const listaPersonas = persons
         setPersons(listaPersonas.concat(personaObj))
+        const repe= persons.find(person => person.name === newName)
+        if (repe !== undefined) {
+          /* window.alert(`${newName} is already added to phonebook`) */
+          const result = window.confirm("Confirm replacement")
+        if (result === true) 
+          deleteNumber(repe.id)()
+        }
+        
+        saveNumber(personaObj)
         setNewName("")
         setNewNumber("")
       }
