@@ -3,15 +3,16 @@ import { deleteNumber } from './services/deleteNumber'
 import { getAllNumbers } from './services/getAllNumbers'
 import { saveNumber } from './services/saveNumber'
 
-const Person = ({persona}) => <li>{persona.name} {persona.number} 
-<button onClick={deleteNumber(persona.id)}>delete</button></li>
+const Person = ({persona, handleDelete}) => <li>{persona.name} {persona.number} 
+<button onClick={handleDelete(persona)}>delete</button></li>
 
-const Persons = ({persons, newFilter}) => {
+const Persons = ({persons, newFilter, handleDelete}) => {
   return (
     <ul>
     {persons.map( (persona,index) => 
       (newFilter === "" || persona.name.toUpperCase().includes(newFilter.toUpperCase()) ? 
-      <Person key={persona.id} persona={persona}/> : "")
+      <Person key={persona.id} persona={persona}
+      handleDelete={handleDelete}/> : "")
       ) } 
     </ul>
   )
@@ -36,11 +37,27 @@ const PersonForm = ({handleSubmit, newName, handleChangeName, newNumber, handleC
 </form>
 )
 
+const Footer = ({newConfirm, color}) => {
+  const footerStyle = {
+    color: color,
+    fontStyle: 'italic',
+    fontSize: 16
+  }
+  return (
+    <div style={footerStyle}>
+      <br />
+      <em>{newConfirm}</em>
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
+  const [newConfirm, setConfirm] = useState("")
+  const [color, setColor] = useState("")
 
   useEffect(() => {
     getAllNumbers()
@@ -48,6 +65,28 @@ const App = () => {
 
   }
   ) 
+  const handleAdd = (persona) => {
+    setColor("green")
+    setConfirm("Added "+persona.name)
+    setTimeout(() => { 
+      setConfirm(null)
+    }, 5000);
+  }
+  const handleDelete = (persona) => {
+    return () => {
+    try{
+    deleteNumber(persona.id)
+    
+    }
+    catch (e){
+    setColor("red")
+    setConfirm("Information of "+persona.name+" has already been removed from server")
+    setTimeout(() => { 
+      setConfirm(null)
+    }, 5000);
+    }
+    }
+  }
 
 
   function handleSubmit(event) {
@@ -72,7 +111,7 @@ const App = () => {
           deleteNumber(repe.id)()
         }
         
-        saveNumber(personaObj)
+        saveNumber(personaObj).then(data => handleAdd(data))
         setNewName("")
         setNewNumber("")
       }
@@ -90,6 +129,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Footer newConfirm={newConfirm} color={color}/>
       <Filter newFilter={newFilter}
       handleChangeFilter={handleChangeFilter}/>
       <h2>add a new</h2>
@@ -101,7 +141,7 @@ const App = () => {
       />
       <h2>Numbers</h2>
       <Persons persons = {persons}
-      newFilter={newFilter}
+      newFilter={newFilter} handleDelete={handleDelete}
       />    
     </div>
     
