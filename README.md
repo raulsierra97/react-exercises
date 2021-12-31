@@ -1,1 +1,1 @@
-# Exercises from a bootcamp: https://fullstackopen.com/en/
+Exercises from a bootcamp: https://fullstackopen.com/en/
